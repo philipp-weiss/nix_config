@@ -1,0 +1,100 @@
+# CLAUDE.md
+
+This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+
+## Commit style
+
+Use [Conventional Commits](https://www.conventionalcommits.org/): `type(scope): description`
+Common types: `feat`, `fix`, `chore`, `docs`. Scope is usually the host (`nuc`, `testy`) or a subsystem (`restic`, `agenix`). Example: `feat(nuc): add German keyboard layout`.
+
+## What this repo is
+
+A NixOS flake covering two hosts:
+
+- **`nuc`** — Intel NUC running NixOS 25.11; primary workload is Home Assistant with a Zigbee/ZHA USB dongle. ZFS root, restic *client* backing up to `testy`. The flake also builds a custom installer ISO bundling the r8125 2.5GbE driver and embedding this config at `/etc/nixos-config`.
+- **`testy`** — Hetzner VM running Vaultwarden and a restic REST *server* (append-only) behind nginx with ACME.
+
+The two hosts are coupled through restic (nuc → testy) and share the restic encryption passphrase.
+
+## Key commands
+
+```bash
+# Apply configuration on the local host
+sudo nixos-rebuild switch --flake .#nuc      # run on the NUC
+sudo nixos-rebuild switch --flake .#testy    # run on testy
+
+# Test without making it permanent
+sudo nixos-rebuild test --flake .#nuc
+
+# Update flake inputs (nixpkgs, disko, agenix)
+nix flake update
+
+# Build the installer ISO (for nuc)
+nix build .#isoImage
+
+# Deploy from this machine to a fresh NUC over SSH
+nix run github:nix-community/nixos-anywhere -- --flake .#nuc nixos@<nuc-ip>
+```
+
+## Architecture
+
+```
+flake.nix               # Inputs (nixpkgs 25.11, disko, agenix), nixosConfigurations.{nuc,testy}, isoImage
+secrets.nix             # agenix recipient list (phip + nuc + testy keys)
+secrets/*.age           # Encrypted secrets (shared between hosts where applicable)
+hosts/
+  nuc/
+    default.nix         # Boot, networking, SSH, ZFS, Home Assistant, restic client
+    disk-config.nix     # disko declarative partitioning
+    hardware-configuration.nix
+  testy/
+    default.nix         # Boot, networking, SSH, nginx, ACME, autoUpgrade
+    vaultwarden.nix     # Vaultwarden service
+    restic-server.nix   # restic REST server (append-only) + weekly prune timer
+    hardware-configuration.nix
+```
+
+Hardware-configuration files are auto-generated; do not edit by hand.
+
+### nuc
+
+**Storage** (`hosts/nuc/disk-config.nix`): NVMe (`/dev/nvme0n1`) → GPT → 512M vfat `/boot` + ZFS pool `rpool` (zstd compression). ZFS datasets: `root` `/`, `nix` `/nix`, `home` `/home`, `var` `/var`. Auto-scrub enabled, auto-snapshot keeps 7 daily snapshots.
+
+**Home Assistant** (`services.home-assistant`): listens on `0.0.0.0:8123` (firewall opens 8123); extra components `zha`, `homeassistant_hardware`, `met`; `hass` user is in `dialout` for the Zigbee USB dongle. Inline automations control a Sonoff valve (`switch.sonoff_swv`) for garden watering — Mon/Wed/Sat 04:00 start in months 4–10 unless ≥3 mm rain forecast in the next 24 h, with an unconditional 06:30 stop.
+
+**Restic backup** (client → testy): nightly at 02:00, `/var/lib/hass` minus the SQLite recorder DB. Repository URL and password come from agenix secrets `restic-repository.age` and `restic-password.age`. Pruning runs server-side on testy.
+
+### testy
+
+**Vaultwarden**: sets `configureNginx = true`; nginx reverse-proxy vhost is automatic at `vaultwarden.pweiss.org`.
+
+**Restic REST server** (`hosts/testy/restic-server.nix`): runs append-only on `127.0.0.1:8000` behind nginx (`restic.pweiss.org`). Pruning runs server-side every Sunday at 03:00 (the client cannot prune in append-only mode). ACME certificates cover both `vaultwarden.pweiss.org` and `restic.pweiss.org`.
+
+## agenix
+
+Recipients are `phip` (user), `nuc` (host), and `testy` (host). Edit secrets from repo root:
+
+```bash
+nix run github:ryantm/agenix -- -e secrets/restic-password.age
+nix run github:ryantm/agenix -- -e secrets/restic-repository.age
+nix run github:ryantm/agenix -- -e secrets/restic-htpasswd.age
+
+# Rekey all secrets after editing secrets.nix recipients
+nix run github:ryantm/agenix -- -r
+```
+
+Per-secret recipient lists live in `secrets.nix`:
+
+- `restic-password.age` → `[phip, nuc, testy]` (shared encryption passphrase)
+- `restic-repository.age` → `[phip, nuc]` (client only)
+- `restic-htpasswd.age` → `[phip, testy]` (server only)
+
+## Auto-upgrade
+
+Both hosts run `system.autoUpgrade` daily at 04:00 with `allowReboot = true`, pulling `github:philipp-weiss/nix-config#<hostname>`. Pushed commits roll out automatically.
+
+## Notable constraints
+
+- `networking.hostId` (`fdd62ac8`) is required by ZFS on nuc and must stay in sync with the pool.
+- SSH password auth is disabled on both hosts; only the listed ed25519 keys can log in as root.
+- The r8125 driver is loaded both in the ISO and in the installed nuc system (`boot.extraModulePackages`).
