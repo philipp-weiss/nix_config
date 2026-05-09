@@ -157,7 +157,7 @@
 
   system.autoUpgrade = {
     enable = true;
-    flake = "github:philipp-weiss/nix-config#nuc";
+    flake = "github:philipp-weiss/nix_config#nuc";
     dates = "04:00";
     allowReboot = true;
   };

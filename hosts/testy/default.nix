@@ -66,7 +66,7 @@
 
   system.autoUpgrade = {
     enable = true;
-    flake = "github:philipp-weiss/nix-config#testy";
+    flake = "github:philipp-weiss/nix_config#testy";
     dates = "04:00";
     allowReboot = true;
   };

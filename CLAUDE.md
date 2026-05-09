@@ -91,7 +91,7 @@ Per-secret recipient lists live in `secrets.nix`:
 
 ## Auto-upgrade
 
-Both hosts run `system.autoUpgrade` daily at 04:00 with `allowReboot = true`, pulling `github:philipp-weiss/nix-config#<hostname>`. Pushed commits roll out automatically.
+Both hosts run `system.autoUpgrade` daily at 04:00 with `allowReboot = true`, pulling `github:philipp-weiss/nix_config#<hostname>`. Pushed commits roll out automatically.
 
 ## Notable constraints
 
