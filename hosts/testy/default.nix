@@ -11,6 +11,16 @@
   boot.loader.grub.device = "/dev/sda";
 
   networking.hostName = "testy";
+
+  # agenix-rekey: master identity (YubiKey) re-encrypts secrets to this host's SSH key
+  age.rekey = {
+    hostPubkey = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAILnyW+Axdl5aI0Q3mXVTgjqIH7XZpvJP0H8XiEmS5suV";
+    masterIdentities = [ ../../secrets/yubikey-identity.pub ];
+    storageMode = "local";
+    localStorageDir = ../../secrets/rekeyed/testy;
+    agePlugins = [ pkgs.age-plugin-yubikey ];
+  };
+
   time.timeZone = "Europe/Berlin";
   i18n.defaultLocale = "C.UTF-8";
   console.keyMap = "de-latin1";

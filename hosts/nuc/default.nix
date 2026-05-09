@@ -124,9 +124,18 @@
     };
   };
 
+  # agenix-rekey: master identity (YubiKey) re-encrypts secrets to this host's SSH key
+  age.rekey = {
+    hostPubkey = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIGdwE7xHYwdbM2IETm3fIH+rxrVeY24Ofnc49Qb/siZb";
+    masterIdentities = [ ../../secrets/yubikey-identity.pub ];
+    storageMode = "local";
+    localStorageDir = ../../secrets/rekeyed/nuc;
+    agePlugins = [ pkgs.age-plugin-yubikey ];
+  };
+
   # Restic backup of Home Assistant to testy (append-only, prune runs server-side)
-  age.secrets.restic-repository.file = ../../secrets/restic-repository.age;
-  age.secrets.restic-password.file = ../../secrets/restic-password.age;
+  age.secrets.restic-repository.rekeyFile = ../../secrets/restic-repository.age;
+  age.secrets.restic-password.rekeyFile = ../../secrets/restic-password.age;
 
   services.restic.backups.home-assistant = {
     repositoryFile = config.age.secrets.restic-repository.path;

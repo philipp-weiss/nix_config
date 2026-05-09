@@ -1,14 +1,11 @@
 let
-  phip  = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIHgCqkVI/LR3FFI9z1JLnQylOsteuCg3fP2UXAf/Bnzu";
-  nuc   = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIGdwE7xHYwdbM2IETm3fIH+rxrVeY24Ofnc49Qb/siZb";
-  testy = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAILnyW+Axdl5aI0Q3mXVTgjqIH7XZpvJP0H8XiEmS5suV";
+  # Master identity: YubiKey (age-plugin-yubikey).
+  # Replace with the recipient string printed by `age-plugin-yubikey --list`
+  # (looks like `age1yubikey1...`). All secrets below are encrypted ONLY to this
+  # recipient; agenix-rekey re-encrypts them per host at rekey time.
+  yubikey = "age1yubikey1qvu6drnf9ea5nr0jtx2gcy7wyrved6gymuqky4v0j5v22hvhx6g5cvt8wpg";
 in {
-  # Shared between client (nuc) and server (testy) — same restic encryption passphrase
-  "secrets/restic-password.age".publicKeys   = [ phip nuc testy ];
-
-  # nuc-only (client side)
-  "secrets/restic-repository.age".publicKeys = [ phip nuc ];
-
-  # testy-only (server side)
-  "secrets/restic-htpasswd.age".publicKeys   = [ phip testy ];
+  "secrets/restic-password.age".publicKeys   = [ yubikey ];
+  "secrets/restic-repository.age".publicKeys = [ yubikey ];
+  "secrets/restic-htpasswd.age".publicKeys   = [ yubikey ];
 }

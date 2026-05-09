@@ -3,12 +3,12 @@
   environment.systemPackages = [ pkgs.restic ];
 
   age.secrets.restic-htpasswd = {
-    file = ../../secrets/restic-htpasswd.age;
+    rekeyFile = ../../secrets/restic-htpasswd.age;
     owner = "restic";
   };
 
   age.secrets.restic-password = {
-    file = ../../secrets/restic-password.age;
+    rekeyFile = ../../secrets/restic-password.age;
   };
 
   services.restic.server = {

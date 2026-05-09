@@ -85,24 +85,31 @@ Hardware-configuration files are auto-generated; do not edit by hand.
 
 **Restic REST server** (`hosts/testy/restic-server.nix`): runs append-only on `127.0.0.1:8000` behind nginx (`restic.pweiss.org`). Pruning runs server-side every Sunday at 03:00 (the client cannot prune in append-only mode). ACME certificates cover both `vaultwarden.pweiss.org` and `restic.pweiss.org`.
 
-## agenix
+## agenix + agenix-rekey
 
-Recipients are `phip` (user), `nuc` (host), and `testy` (host). Edit secrets from repo root:
+Source secrets in `secrets/*.age` are encrypted **only** to a single master
+identity (the YubiKey listed in `secrets.nix`). On build, agenix-rekey
+re-encrypts each secret to the host's SSH key and writes the result to
+`secrets/rekeyed/<host>/`. Those rekeyed files are committed so unattended
+`system.autoUpgrade` can build without the YubiKey present.
+
+Use the `agenix` CLI from the dev shell (it's the agenix-rekey wrapper, not
+upstream agenix):
 
 ```bash
-nix run github:ryantm/agenix -- -e secrets/restic-password.age
-nix run github:ryantm/agenix -- -e secrets/restic-repository.age
-nix run github:ryantm/agenix -- -e secrets/restic-htpasswd.age
-
-# Rekey all secrets after editing secrets.nix recipients
-nix run github:ryantm/agenix -- -r
+nix develop                              # drops you in a shell with `agenix`
+agenix edit secrets/restic-password.age  # YubiKey touch required
+agenix rekey -a                          # re-encrypt all secrets for all hosts
 ```
 
-Per-secret recipient lists live in `secrets.nix`:
+Then `git add secrets/rekeyed/ && git commit`.
 
-- `restic-password.age` → `[phip, nuc, testy]` (shared encryption passphrase)
-- `restic-repository.age` → `[phip, nuc]` (client only)
-- `restic-htpasswd.age` → `[phip, testy]` (server only)
+Per-host rekey config lives in each host's NixOS module (`age.rekey.*`):
+`hostPubkey` (the host's SSH ed25519 pub), `masterIdentities` (path to
+`secrets/yubikey-identity.pub`), `storageMode = "local"`,
+`localStorageDir = ../../secrets/rekeyed/<host>`.
+
+Secrets are declared with `age.secrets.X.rekeyFile = ...` (not `.file`).
 
 ## Auto-upgrade
 
