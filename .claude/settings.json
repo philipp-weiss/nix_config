@@ -10,5 +10,21 @@
       "Bash(git add *)",
       "Bash(git commit -m *)"
     ]
+  },
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Write|Edit|MultiEdit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "read -r json; case \"$json\" in *.nix\\\"*|*flake.lock\\\"*) ;; *) exit 0 ;; esac; out=$(nix flake check --no-build 2>&1) && exit 0 || { echo \"$out\"; exit 2; }",
+            "asyncRewake": true,
+            "rewakeSummary": "nix flake check failed",
+            "statusMessage": "nix flake check (background)"
+          }
+        ]
+      }
+    ]
   }
 }
