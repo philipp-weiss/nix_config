@@ -1,0 +1,4 @@
+- [Auto-push after committing](feedback_auto_push.md) — push immediately after a commit on main; no separate confirm
+- [Skip nixos-rebuild test, go straight to switch](feedback_rebuild_flow.md) — default to `switch`, skip the `test` safety step
+- [Edits on WSL, applies on nuc/testy via SSH](user_remote_workflow.md) — don't run nuc/testy rebuilds locally on WSL
+- [Default to writing todos](feedback_use_todos.md) — lower the bar for TaskCreate so user can follow along

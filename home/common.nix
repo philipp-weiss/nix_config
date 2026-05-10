@@ -1,4 +1,4 @@
-{ pkgs, unstable, ... }:
+{ pkgs, unstable, config, ... }:
 {
   programs.zsh = {
     enable = true;
@@ -36,6 +36,9 @@
   home.packages = [
     unstable.claude-code
   ];
+
+  home.file.".claude/projects/-home-nixos-nix-config/memory".source =
+    config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/nix_config/.claude/memory";
 
   home.stateVersion = "25.11";
 }
