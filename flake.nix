@@ -11,9 +11,17 @@
       url = "github:ryantm/agenix";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+    nixos-wsl = {
+      url = "github:nix-community/NixOS-WSL";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+    home-manager = {
+      url = "github:nix-community/home-manager/release-25.11";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
-  outputs = { self, nixpkgs, disko, agenix, ... }:
+  outputs = { self, nixpkgs, disko, agenix, nixos-wsl, home-manager, ... }:
   let
     system = "x86_64-linux";
     pkgs = nixpkgs.legacyPackages.${system};
@@ -52,6 +60,17 @@
       modules = [
         agenix.nixosModules.default
         ./hosts/testy
+      ];
+    };
+
+    # wsl (NixOS-WSL dev machine)
+    nixosConfigurations.wsl = nixpkgs.lib.nixosSystem {
+      inherit system;
+      modules = [
+        nixos-wsl.nixosModules.default
+        home-manager.nixosModules.home-manager
+        ./modules/common.nix
+        ./hosts/wsl
       ];
     };
   };
