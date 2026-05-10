@@ -9,6 +9,7 @@
 
   age.secrets.restic-password = {
     rekeyFile = ../../secrets/restic-password.age;
+    owner = "restic";
   };
 
   services.restic.server = {
@@ -29,11 +30,14 @@
     };
   };
 
-  # Pruning must run server-side because the client is append-only
+  # Pruning must run server-side because the client is append-only.
+  # Runs as the `restic` user so files it rewrites stay readable by rest-server.
   systemd.services.restic-prune-nuc = {
     description = "Prune restic backups for nuc";
     serviceConfig = {
       Type = "oneshot";
+      User = "restic";
+      Group = "restic";
       ExecStart = "${pkgs.restic}/bin/restic -r /var/lib/restic/nuc --password-file ${config.age.secrets.restic-password.path} forget --prune --keep-daily 7 --keep-weekly 4 --keep-monthly 3";
     };
   };
