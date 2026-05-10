@@ -1,0 +1,14 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(nix flake show *)",
+      "Bash(nix flake metadata *)",
+      "Bash(nix flake check *)",
+      "Bash(nixos-rebuild dry-build *)",
+      "Bash(nixos-rebuild dry-activate *)",
+      "Bash(nixos-rebuild build *)",
+      "Bash(git add *)",
+      "Bash(git commit -m *)"
+    ]
+  }
+}
