@@ -11,6 +11,14 @@
     enableZshIntegration = true;
   };
 
+  programs.tmux = {
+    enable = true;
+    mouse = true;
+    baseIndex = 1;
+    keyMode = "vi";
+    historyLimit = 10000;
+  };
+
   programs.git = {
     enable = true;
     settings = {
