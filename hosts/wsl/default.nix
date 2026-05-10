@@ -4,6 +4,7 @@
   wsl.defaultUser = "nixos";
 
   programs.zsh.enable = true;
+  programs.zsh.loginShellInit = "cd ~";
   users.users.nixos.shell = pkgs.zsh;
 
   home-manager.useGlobalPkgs = true;
