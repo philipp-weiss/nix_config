@@ -9,12 +9,13 @@ Common types: `feat`, `fix`, `chore`, `docs`. Scope is usually the host (`nuc`, 
 
 ## What this repo is
 
-A NixOS flake covering two hosts:
+A NixOS flake covering three hosts:
 
 - **`nuc`** — Intel NUC running NixOS 25.11; primary workload is Home Assistant with a Zigbee/ZHA USB dongle. ZFS root, restic *client* backing up to `testy`. The flake also builds a custom installer ISO bundling the r8125 2.5GbE driver and embedding this config at `/etc/nixos-config`.
 - **`testy`** — Hetzner VM running Vaultwarden and a restic REST *server* (append-only) behind nginx with ACME.
+- **`wsl`** — NixOS-WSL dev machine (Windows Subsystem for Linux). Default user `nixos`. Managed with Home Manager.
 
-The two hosts are coupled through restic (nuc → testy) and share the restic encryption passphrase.
+The nuc and testy hosts are coupled through restic (nuc → testy) and share the restic encryption passphrase.
 
 ## Key commands
 
@@ -22,6 +23,7 @@ The two hosts are coupled through restic (nuc → testy) and share the restic en
 # Apply configuration on the local host
 sudo nixos-rebuild switch --flake .#nuc      # run on the NUC
 sudo nixos-rebuild switch --flake .#testy    # run on testy
+sudo nixos-rebuild switch --flake .#wsl      # run on WSL
 
 # Test without making it permanent
 sudo nixos-rebuild test --flake .#nuc
@@ -39,9 +41,13 @@ nix run github:nix-community/nixos-anywhere -- --flake .#nuc nixos@<nuc-ip>
 ## Architecture
 
 ```
-flake.nix               # Inputs (nixpkgs 25.11, disko, agenix), nixosConfigurations.{nuc,testy}, isoImage
+flake.nix               # Inputs (nixpkgs 25.11, disko, agenix, nixos-wsl, home-manager), nixosConfigurations.{nuc,testy,wsl}, isoImage
 secrets.nix             # agenix recipient list (phip + nuc + testy keys)
 secrets/*.age           # Encrypted secrets (shared between hosts where applicable)
+modules/
+  common.nix            # Shared NixOS config imported by all hosts (nix settings, allowUnfree)
+home/
+  common.nix            # Shared Home Manager config (git, user packages)
 hosts/
   nuc/
     default.nix         # Boot, networking, SSH, ZFS, Home Assistant, restic client
@@ -52,6 +58,8 @@ hosts/
     vaultwarden.nix     # Vaultwarden service
     restic-server.nix   # restic REST server (append-only) + weekly prune timer
     hardware-configuration.nix
+  wsl/
+    default.nix         # WSL enable, defaultUser, home-manager wiring
 ```
 
 Hardware-configuration files are auto-generated; do not edit by hand.
@@ -63,6 +71,10 @@ Hardware-configuration files are auto-generated; do not edit by hand.
 **Home Assistant** (`services.home-assistant`): listens on `0.0.0.0:8123` (firewall opens 8123); extra components `zha`, `homeassistant_hardware`, `met`; `hass` user is in `dialout` for the Zigbee USB dongle. Inline automations control a Sonoff valve (`switch.sonoff_swv`) for garden watering — Mon/Wed/Sat 04:00 start in months 4–10 unless ≥3 mm rain forecast in the next 24 h, with an unconditional 06:30 stop.
 
 **Restic backup** (client → testy): nightly at 02:00, `/var/lib/hass` minus the SQLite recorder DB. Repository URL and password come from agenix secrets `restic-repository.age` and `restic-password.age`. Pruning runs server-side on testy.
+
+### wsl
+
+**NixOS-WSL** dev machine. Default user `nixos`. Imports `modules/common.nix` for shared nix settings. Home Manager (NixOS module, activated via `nixos-rebuild`) manages user environment via `home/common.nix`: git config and user packages (`claude-code`).
 
 ### testy
 
