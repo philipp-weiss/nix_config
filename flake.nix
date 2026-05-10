@@ -3,6 +3,7 @@
 
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-25.11";
+    nixpkgs-unstable.url = "github:NixOS/nixpkgs/nixos-unstable";
     disko = {
       url = "github:nix-community/disko";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -21,10 +22,11 @@
     };
   };
 
-  outputs = { self, nixpkgs, disko, agenix, nixos-wsl, home-manager, ... }:
+  outputs = { self, nixpkgs, nixpkgs-unstable, disko, agenix, nixos-wsl, home-manager, ... }:
   let
     system = "x86_64-linux";
     pkgs = nixpkgs.legacyPackages.${system};
+    unstable = import nixpkgs-unstable { inherit system; config.allowUnfree = true; };
   in
   {
     # Installer-ISO mit r8125 Treiber (für nuc)
@@ -68,6 +70,7 @@
     # wsl (NixOS-WSL dev machine)
     nixosConfigurations.wsl = nixpkgs.lib.nixosSystem {
       inherit system;
+      specialArgs = { inherit unstable; };
       modules = [
         nixos-wsl.nixosModules.default
         home-manager.nixosModules.home-manager

@@ -1,4 +1,4 @@
-{ pkgs, ... }:
+{ pkgs, unstable, ... }:
 {
   programs.zsh = {
     enable = true;
@@ -33,8 +33,8 @@
     };
   };
 
-  home.packages = with pkgs; [
-    claude-code
+  home.packages = [
+    unstable.claude-code
   ];
 
   home.stateVersion = "25.11";
