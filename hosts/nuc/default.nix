@@ -25,6 +25,7 @@
   # Benutzer
   users.users.root.openssh.authorizedKeys.keys = [
     "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIHgCqkVI/LR3FFI9z1JLnQylOsteuCg3fP2UXAf/Bnzu philipp.weiss@web.de"
+    "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAICZkDf2zA4TeVNjSzZXq9Jj2imPaDzsjPEmoYNhMBn2n wsl"
   ];
 
   # SSH
