@@ -28,8 +28,11 @@ sudo nixos-rebuild switch --flake .#wsl      # run on WSL
 # Test without making it permanent
 sudo nixos-rebuild test --flake .#nuc
 
-# Update flake inputs (nixpkgs, disko, agenix)
+# Update all flake inputs
 nix flake update
+
+# Update only nixpkgs-unstable (e.g. for newer claude-code)
+nix flake update nixpkgs-unstable
 
 # Build the installer ISO (for nuc)
 nix build .#isoImage
@@ -41,13 +44,13 @@ nix run github:nix-community/nixos-anywhere -- --flake .#nuc nixos@<nuc-ip>
 ## Architecture
 
 ```
-flake.nix               # Inputs (nixpkgs 25.11, disko, agenix, nixos-wsl, home-manager), nixosConfigurations.{nuc,testy,wsl}, isoImage
+flake.nix               # Inputs (nixpkgs 25.11, nixpkgs-unstable, disko, agenix, nixos-wsl, home-manager), nixosConfigurations.{nuc,testy,wsl}, isoImage
 secrets.nix             # agenix recipient list (phip + nuc + testy keys)
 secrets/*.age           # Encrypted secrets (shared between hosts where applicable)
 modules/
   common.nix            # Shared NixOS config imported by all hosts (nix experimental-features, allowUnfree)
 home/
-  common.nix            # Shared Home Manager config (git, user packages)
+  common.nix            # Shared Home Manager config (zsh, starship, fzf, tmux, git, user packages)
 hosts/
   nuc/
     default.nix         # Boot, networking, SSH, ZFS, Home Assistant, restic client
@@ -74,7 +77,7 @@ Hardware-configuration files are auto-generated; do not edit by hand.
 
 ### wsl
 
-**NixOS-WSL** dev machine. Default user `nixos`. Imports `modules/common.nix` for shared nix settings. Home Manager (NixOS module, activated via `nixos-rebuild`) manages user environment via `home/common.nix`: git config and user packages (`claude-code`).
+**NixOS-WSL** dev machine. Default user `nixos` with zsh login shell. Imports `modules/common.nix` for shared nix settings. Home Manager (NixOS module, activated via `nixos-rebuild`) manages user environment via `home/common.nix`: zsh (with autosuggestions + syntax highlighting), starship prompt, fzf, tmux (vi keys, mouse), git config, and user packages (`claude-code` from `nixpkgs-unstable`).
 
 ### testy
 
@@ -110,3 +113,4 @@ Both hosts run `system.autoUpgrade` daily at 04:00 with `allowReboot = true`, pu
 - `networking.hostId` (`fdd62ac8`) is required by ZFS on nuc and must stay in sync with the pool.
 - SSH password auth is disabled on both hosts; only the listed ed25519 keys can log in as root.
 - The r8125 driver is loaded both in the ISO and in the installed nuc system (`boot.extraModulePackages`).
+- `nixpkgs-unstable` is used only for packages that need bleeding-edge versions (currently `claude-code`). It is configured with `allowUnfree = true` separately from the main nixpkgs. Pass `unstable` via `specialArgs`/`extraSpecialArgs` to use it in modules.
