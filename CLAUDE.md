@@ -45,7 +45,7 @@ flake.nix               # Inputs (nixpkgs 25.11, disko, agenix, nixos-wsl, home-
 secrets.nix             # agenix recipient list (phip + nuc + testy keys)
 secrets/*.age           # Encrypted secrets (shared between hosts where applicable)
 modules/
-  common.nix            # Shared NixOS config imported by all hosts (nix settings, allowUnfree)
+  common.nix            # Shared NixOS config imported by all hosts (nix experimental-features, allowUnfree)
 home/
   common.nix            # Shared Home Manager config (git, user packages)
 hosts/
