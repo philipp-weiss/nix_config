@@ -144,8 +144,7 @@
     };
   };
 
-  # Flakes aktivieren
-  nix.settings.experimental-features = [ "nix-command" "flakes" ];
+
   nix.nixPath = [ "nixpkgs=flake:nixpkgs" ];
 
   # Nix Garbage Collection

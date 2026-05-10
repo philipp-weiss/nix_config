@@ -50,6 +50,7 @@
       modules = [
         disko.nixosModules.disko
         agenix.nixosModules.default
+        ./modules/common.nix
         ./hosts/nuc
       ];
     };
@@ -59,6 +60,7 @@
       inherit system;
       modules = [
         agenix.nixosModules.default
+        ./modules/common.nix
         ./hosts/testy
       ];
     };
