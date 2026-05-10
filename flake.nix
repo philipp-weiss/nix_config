@@ -89,9 +89,10 @@
     };
 
     # agenix-rekey CLI entry points (`nix run .#agenix-rekey.<system>.<app>`)
+    # wsl has no secrets and no SSH host key yet; include it once it does.
     agenix-rekey = agenix-rekey.configure {
       userFlake = self;
-      nixosConfigurations = self.nixosConfigurations;
+      nixosConfigurations = nixpkgs.lib.filterAttrs (n: _: n != "wsl") self.nixosConfigurations;
       darwinConfigurations = self.darwinConfigurations or { };
     };
 
