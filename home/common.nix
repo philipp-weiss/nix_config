@@ -22,6 +22,9 @@
     baseIndex = 1;
     keyMode = "vi";
     historyLimit = 10000;
+    extraConfig = ''
+      set -g set-clipboard on
+    '';
   };
 
   programs.git = {
