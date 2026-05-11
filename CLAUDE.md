@@ -45,8 +45,8 @@ nix run github:nix-community/nixos-anywhere -- --flake .#nuc nixos@<nuc-ip>
 
 ```
 flake.nix               # Inputs (nixpkgs 25.11, nixpkgs-unstable, disko, agenix, nixos-wsl, home-manager), nixosConfigurations.{nuc,testy,wsl}, isoImage
-secrets.nix             # agenix recipient list (phip + nuc + testy keys)
 secrets/*.age           # Encrypted secrets (shared between hosts where applicable)
+secrets/yubikey-identity.pub  # Master recipient (YubiKey) referenced from each host's age.rekey.masterIdentities
 modules/
   common.nix            # Shared NixOS config imported by all hosts (nix experimental-features, allowUnfree)
 home/
@@ -88,7 +88,8 @@ Hardware-configuration files are auto-generated; do not edit by hand.
 ## agenix + agenix-rekey
 
 Source secrets in `secrets/*.age` are encrypted **only** to a single master
-identity (the YubiKey listed in `secrets.nix`). On build, agenix-rekey
+identity (the YubiKey, recipient at `secrets/yubikey-identity.pub` and wired
+into each host via `age.rekey.masterIdentities`). On build, agenix-rekey
 re-encrypts each secret to the host's SSH key and writes the result to
 `secrets/rekeyed/<host>/`. Those rekeyed files are committed so unattended
 `system.autoUpgrade` can build without the YubiKey present.
