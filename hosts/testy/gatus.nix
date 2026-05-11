@@ -67,5 +67,11 @@
       proxyPass = "http://127.0.0.1:8080";
       basicAuthFile = config.age.secrets.gatus-htpasswd.path;
     };
+    # Heartbeat push endpoint must be reachable without basic auth — gatus
+    # authenticates these requests with the bearer token. Regex location wins
+    # over the prefix `/` location only for this exact path shape.
+    locations."~ ^/api/v1/endpoints/[^/]+/external$" = {
+      proxyPass = "http://127.0.0.1:8080";
+    };
   };
 }
