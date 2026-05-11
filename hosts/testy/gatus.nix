@@ -5,8 +5,13 @@
     owner = "nginx";
   };
 
+  # Shared secret for the nightly-backup heartbeat (env file: GATUS_BACKUP_TOKEN=...).
+  # Read by systemd as root before launching gatus, so default agenix perms are fine.
+  age.secrets.gatus-heartbeat-token.rekeyFile = ../../secrets/gatus-heartbeat-token.age;
+
   services.gatus = {
     enable = true;
+    environmentFile = config.age.secrets.gatus-heartbeat-token.path;
     settings = {
       web = {
         address = "127.0.0.1";
@@ -39,6 +44,17 @@
             "[STATUS] == 401"
             "[CERTIFICATE_EXPIRATION] > 168h"
           ];
+        }
+      ];
+
+      # Heartbeat from nuc's nightly restic backup. nuc POSTs on success; if no
+      # push arrives within heartbeat.interval, gatus marks this endpoint DOWN.
+      external-endpoints = [
+        {
+          name = "nightly-backup";
+          group = "cron";
+          token = "\${GATUS_BACKUP_TOKEN}";
+          heartbeat.interval = "25h";
         }
       ];
     };
