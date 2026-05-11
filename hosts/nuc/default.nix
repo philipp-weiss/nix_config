@@ -133,10 +133,10 @@
     agePlugins = [ pkgs.age-plugin-yubikey ];
   };
 
-  # Restic backup of Home Assistant to testy (append-only, prune runs server-side)
+  # Restic backup of Home Assistant to testy (append-only, prune runs server-side).
+  # Freshness monitoring lives on testy (filesystem-based check pushes to gatus).
   age.secrets.restic-repository.rekeyFile = ../../secrets/restic-repository.age;
   age.secrets.restic-password.rekeyFile = ../../secrets/restic-password.age;
-  age.secrets.gatus-heartbeat-token.rekeyFile = ../../secrets/gatus-heartbeat-token.age;
 
   services.restic.backups.home-assistant = {
     repositoryFile = config.age.secrets.restic-repository.path;
@@ -152,13 +152,6 @@
       OnCalendar = "02:00";
       Persistent = true;
     };
-  };
-
-  # Heartbeat ping to gatus on successful backup. ExecStartPost runs only if
-  # ExecStart exited cleanly; `-` prefix keeps a failed ping from failing the unit.
-  systemd.services.restic-backups-home-assistant.serviceConfig = {
-    EnvironmentFile = config.age.secrets.gatus-heartbeat-token.path;
-    ExecStartPost = "-${pkgs.curl}/bin/curl -fsS --max-time 30 -X POST -H \"Authorization: Bearer \${GATUS_BACKUP_TOKEN}\" https://status.pweiss.org/api/v1/endpoints/cron_nightly-backup/external?success=true";
   };
 
 
