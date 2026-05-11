@@ -54,7 +54,7 @@
           name = "nightly-backup";
           group = "cron";
           token = "\${GATUS_BACKUP_TOKEN}";
-          heartbeat.interval = "1m";
+          heartbeat.interval = "25h";
         }
       ];
     };
