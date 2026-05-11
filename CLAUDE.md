@@ -44,7 +44,7 @@ nix run github:nix-community/nixos-anywhere -- --flake .#nuc nixos@<nuc-ip>
 ## Architecture
 
 ```
-flake.nix               # Inputs (nixpkgs 25.11, nixpkgs-unstable, disko, agenix, nixos-wsl, home-manager), nixosConfigurations.{nuc,testy,wsl}, isoImage
+flake.nix               # Inputs (nixpkgs 25.11, nixpkgs-unstable, flake-parts, disko, agenix, agenix-rekey, nixos-wsl, home-manager); built with flake-parts (perSystem for isoImage/devShell/agenix-rekey wiring, flake.nixosConfigurations for nuc/testy/wsl)
 secrets/*.age           # Encrypted secrets (shared between hosts where applicable)
 secrets/yubikey-identity.pub  # Master recipient (YubiKey) referenced from each host's age.rekey.masterIdentities
 modules/
