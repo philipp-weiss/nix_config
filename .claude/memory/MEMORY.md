@@ -4,3 +4,4 @@
 - [Don't SSH into nuc/testy yourself](feedback_no_remote_access.md) — print remote commands for the user to run; don't execute them
 - [Default to writing todos](feedback_use_todos.md) — lower the bar for TaskCreate so user can follow along
 - [Auto-commit memory changes](feedback_commit_memory.md) — commit + push memory edits in the same turn
+- [Stage files before nix eval/build](feedback_stage_before_eval.md) — `git add` new/modified .nix files before any nix eval/build/check
