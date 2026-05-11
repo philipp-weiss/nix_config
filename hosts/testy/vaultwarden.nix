@@ -1,8 +1,4 @@
-{
-  config,
-  lib,
-  ...
-}:
+{ ... }:
 {
   services.vaultwarden = {
     enable = true;

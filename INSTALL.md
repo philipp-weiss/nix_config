@@ -2,10 +2,11 @@
 
 ## Vorbereitung
 
-Boot the custom ISO (includes r8125 driver and this config at `/etc/nixos-config`):
+Build the custom ISO (includes the r8125 driver and this config at `/etc/nixos-config`):
 ```bash
 nix build .#isoImage
 ```
+Flash it to a USB stick and boot the NUC from it.
 
 ## Installation (vom eigenen PC aus)
 
@@ -15,15 +16,6 @@ nix run github:nix-community/nixos-anywhere -- \
   nixos@<nuc-ip>
 ```
 
-## Nach der Installation
-
-```bash
-ssh root@<nuc-ip>
-git clone https://github.com/philipp-weiss/nuc.git ~/nuc
-cd ~/nuc
-sudo nixos-rebuild switch --flake .#nuc
-```
-
 Secrets müssen manuell erstellt werden — siehe CLAUDE.md.
 
 ## Wichtige Befehle
@@ -31,9 +23,6 @@ Secrets müssen manuell erstellt werden — siehe CLAUDE.md.
 ```bash
 # Konfiguration anwenden
 sudo nixos-rebuild switch --flake .#nuc
-
-# Konfiguration testen (ohne dauerhaft zu aktivieren)
-sudo nixos-rebuild test --flake .#nuc
 
 # Flake-Inputs aktualisieren
 nix flake update
