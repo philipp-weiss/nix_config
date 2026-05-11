@@ -5,6 +5,7 @@
     ./hardware-configuration.nix
     ./vaultwarden.nix
     ./restic-server.nix
+    ./gatus.nix
   ];
 
   boot.loader.grub.enable = true;
