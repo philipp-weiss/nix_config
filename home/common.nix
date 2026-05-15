@@ -40,13 +40,14 @@
     enable = true;
     enableDefaultConfig = false;
     matchBlocks = {
+      # Tailnet IPs from the headscale-managed VPN; both hosts must be joined.
       nuc = {
-        hostname = "192.168.178.55";
+        hostname = "100.64.0.2";
         user = "root";
         identityFile = "~/.ssh/id_ed25519_sk";
       };
       testy = {
-        hostname = "46.225.79.190";
+        hostname = "100.64.0.4";
         user = "root";
         identityFile = "~/.ssh/id_ed25519_sk";
       };
