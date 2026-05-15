@@ -15,3 +15,11 @@ internal zone like `vpn.pweiss.org` that maps to the WG IPs. Push it to
 phone clients via the WG `DNS = 10.42.0.1` line in their tunnel config —
 the WireGuard app installs that resolver only while the tunnel is up, so
 off-VPN DNS stays unchanged.
+
+## Dendritic pattern — auto-import modules
+
+Investigate the dendritic flake-parts pattern for organizing this repo:
+modules are auto-discovered by walking a directory tree instead of being
+explicitly listed in `flake.nix` / each host's `imports`. With three hosts
+and a small handful of shared modules the current layout is fine, but as
+`modules/common.nix` keeps absorbing config it'll grow. Worth a look.
