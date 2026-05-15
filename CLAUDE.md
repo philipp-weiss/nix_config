@@ -53,7 +53,8 @@ home/
   common.nix            # Shared Home Manager config (zsh, starship, fzf, tmux, git, user packages)
 hosts/
   nuc/
-    default.nix         # Boot, networking, SSH, ZFS, Home Assistant, restic client
+    default.nix         # Boot, networking, SSH, ZFS, restic client
+    home-assistant.nix  # Home Assistant service + automations + Zigbee dongle access
     disk-config.nix     # disko declarative partitioning
     hardware-configuration.nix
   bastion/
