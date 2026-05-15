@@ -2,6 +2,7 @@
 {
   wsl.enable = true;
   wsl.defaultUser = "nixos";
+  networking.hostName = "wsl";
   # WSL otherwise overwrites /etc/hosts at boot, which would clobber the
   # WireGuard peer entries below.
   wsl.wslConf.network.generateHosts = false;
@@ -25,14 +26,7 @@
     openFirewall = false;
   };
 
-  # agenix-rekey wiring (same pattern as nuc/bastion).
-  age.rekey = {
-    hostPubkey = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIMKbqoE+0wANUEFWl41DIrO0yvQdsu1BUzQaDubdhaJq";
-    masterIdentities = [ ../../secrets/yubikey-identity.pub ];
-    storageMode = "local";
-    localStorageDir = ../../secrets/rekeyed/wsl;
-    agePlugins = [ pkgs.age-plugin-yubikey ];
-  };
+  age.rekey.hostPubkey = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIMKbqoE+0wANUEFWl41DIrO0yvQdsu1BUzQaDubdhaJq";
 
   # YubiKey: pcscd for PIV (used by age-plugin-yubikey) + udev rules for device access.
   services.pcscd.enable = true;

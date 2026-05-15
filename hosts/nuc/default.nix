@@ -72,14 +72,7 @@
   # (Home Assistant adds its own 8123 rule in home-assistant.nix.)
   networking.firewall.interfaces.wg0.allowedTCPPorts = [ 22 ];
 
-  # agenix-rekey: master identity (YubiKey) re-encrypts secrets to this host's SSH key
-  age.rekey = {
-    hostPubkey = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIGdwE7xHYwdbM2IETm3fIH+rxrVeY24Ofnc49Qb/siZb";
-    masterIdentities = [ ../../secrets/yubikey-identity.pub ];
-    storageMode = "local";
-    localStorageDir = ../../secrets/rekeyed/nuc;
-    agePlugins = [ pkgs.age-plugin-yubikey ];
-  };
+  age.rekey.hostPubkey = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIGdwE7xHYwdbM2IETm3fIH+rxrVeY24Ofnc49Qb/siZb";
 
   # Restic backup of Home Assistant to bastion (append-only, prune runs server-side).
   # Freshness monitoring lives on bastion (filesystem-based check pushes to gatus).

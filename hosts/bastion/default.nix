@@ -14,14 +14,7 @@
 
   networking.hostName = "bastion";
 
-  # agenix-rekey: master identity (YubiKey) re-encrypts secrets to this host's SSH key
-  age.rekey = {
-    hostPubkey = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAILnyW+Axdl5aI0Q3mXVTgjqIH7XZpvJP0H8XiEmS5suV";
-    masterIdentities = [ ../../secrets/yubikey-identity.pub ];
-    storageMode = "local";
-    localStorageDir = ../../secrets/rekeyed/bastion;
-    agePlugins = [ pkgs.age-plugin-yubikey ];
-  };
+  age.rekey.hostPubkey = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAILnyW+Axdl5aI0Q3mXVTgjqIH7XZpvJP0H8XiEmS5suV";
 
   nix.nixPath = [ "nixpkgs=flake:nixpkgs" ];
 
