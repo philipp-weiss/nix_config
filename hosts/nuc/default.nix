@@ -153,13 +153,22 @@
 
   # Restic backup of Home Assistant to bastion (append-only, prune runs server-side).
   # Freshness monitoring lives on bastion (filesystem-based check pushes to gatus).
-  age.secrets.restic-repository.rekeyFile = ../../secrets/restic-repository.age;
+  age.secrets.restic-rest-password.rekeyFile = ../../secrets/restic-rest-password.age;
   age.secrets.restic-password.rekeyFile = ../../secrets/restic-password.age;
 
   services.restic.backups.home-assistant = {
-    repositoryFile = config.age.secrets.restic-repository.path;
+    repositoryFile = "/run/restic-backups-home-assistant/repo-url";
     passwordFile = config.age.secrets.restic-password.path;
     initialize = true;
+    # Templating the URL here keeps only the basic-auth password in agenix; the
+    # address lives in nix and can be changed without a YubiKey touch.
+    backupPrepareCommand = ''
+      set -e
+      umask 077
+      printf 'rest:http://nuc:%s@bastion:8000/nuc/' \
+        "$(cat ${config.age.secrets.restic-rest-password.path})" \
+        > /run/restic-backups-home-assistant/repo-url
+    '';
     paths = [ "/var/lib/hass" ];
     exclude = [
       "/var/lib/hass/home-assistant_v2.db"
