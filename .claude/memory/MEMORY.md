@@ -1,9 +1,9 @@
 - [Auto-push after committing](feedback_auto_push.md) — push immediately after a commit on main; no separate confirm
 - [Skip nixos-rebuild test, go straight to switch](feedback_rebuild_flow.md) — default to `switch`, skip the `test` safety step
-- [Edits on WSL, applies on nuc/testy via SSH](user_remote_workflow.md) — don't run nuc/testy rebuilds locally on WSL
-- [Don't SSH into nuc/testy yourself](feedback_no_remote_access.md) — print remote commands for the user to run; don't execute them
+- [Edits on WSL, applies on nuc/bastion via SSH](user_remote_workflow.md) — don't run nuc/bastion rebuilds locally on WSL
+- [Don't SSH into nuc/bastion yourself](feedback_no_remote_access.md) — print remote commands for the user to run; don't execute them
 - [Default to writing todos](feedback_use_todos.md) — lower the bar for TaskCreate so user can follow along
 - [Auto-commit memory changes](feedback_commit_memory.md) — commit + push memory edits in the same turn
 - [Stage files before nix eval/build](feedback_stage_before_eval.md) — `git add` new/modified .nix files before any nix eval/build/check
 - [Only commit safe-to-expose content](feedback_safe_to_expose.md) — memory and repo are public on GitHub; treat everything written as world-readable
-- [pweiss.org DNS wildcard](reference_pweiss_dns_wildcard.md) — *.pweiss.org → testy; new subdomain vhosts need no DNS step
+- [pweiss.org DNS wildcard](reference_pweiss_dns_wildcard.md) — *.pweiss.org → bastion; new subdomain vhosts need no DNS step

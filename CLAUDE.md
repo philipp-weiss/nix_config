@@ -5,24 +5,24 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## Commit style
 
 Use [Conventional Commits](https://www.conventionalcommits.org/): `type(scope): description`
-Common types: `feat`, `fix`, `chore`, `docs`. Scope is usually the host (`nuc`, `testy`) or a subsystem (`restic`, `agenix`). Example: `feat(nuc): add German keyboard layout`.
+Common types: `feat`, `fix`, `chore`, `docs`. Scope is usually the host (`nuc`, `bastion`) or a subsystem (`restic`, `agenix`). Example: `feat(nuc): add German keyboard layout`.
 
 ## What this repo is
 
 A NixOS flake covering three hosts:
 
-- **`nuc`** — Intel NUC running NixOS 25.11; primary workload is Home Assistant with a Zigbee/ZHA USB dongle. ZFS root, restic *client* backing up to `testy`. The flake also builds a custom installer ISO bundling the r8125 2.5GbE driver and embedding this config at `/etc/nixos-config`.
-- **`testy`** — Hetzner VM running Vaultwarden and a restic REST *server* (append-only) behind nginx with ACME.
+- **`nuc`** — Intel NUC running NixOS 25.11; primary workload is Home Assistant with a Zigbee/ZHA USB dongle. ZFS root, restic *client* backing up to `bastion`. The flake also builds a custom installer ISO bundling the r8125 2.5GbE driver and embedding this config at `/etc/nixos-config`.
+- **`bastion`** — Hetzner VM running Vaultwarden and a restic REST *server* (append-only) behind nginx with ACME.
 - **`wsl`** — NixOS-WSL dev machine (Windows Subsystem for Linux). Default user `nixos`. Managed with Home Manager.
 
-The nuc and testy hosts are coupled through restic (nuc → testy) and share the restic encryption passphrase.
+The nuc and bastion hosts are coupled through restic (nuc → bastion) and share the restic encryption passphrase.
 
 ## Key commands
 
 ```bash
 # Apply configuration on the local host
 sudo nixos-rebuild switch --flake .#nuc      # run on the NUC
-sudo nixos-rebuild switch --flake .#testy    # run on testy
+sudo nixos-rebuild switch --flake .#bastion    # run on bastion
 sudo nixos-rebuild switch --flake .#wsl      # run on WSL
 
 # Test without making it permanent
@@ -44,7 +44,7 @@ nix run github:nix-community/nixos-anywhere -- --flake .#nuc nixos@<nuc-ip>
 ## Architecture
 
 ```
-flake.nix               # Inputs (nixpkgs 25.11, nixpkgs-unstable, flake-parts, disko, agenix, agenix-rekey, nixos-wsl, home-manager); built with flake-parts (perSystem for isoImage/devShell/agenix-rekey wiring, flake.nixosConfigurations for nuc/testy/wsl)
+flake.nix               # Inputs (nixpkgs 25.11, nixpkgs-unstable, flake-parts, disko, agenix, agenix-rekey, nixos-wsl, home-manager); built with flake-parts (perSystem for isoImage/devShell/agenix-rekey wiring, flake.nixosConfigurations for nuc/bastion/wsl)
 secrets/*.age           # Encrypted secrets (shared between hosts where applicable)
 secrets/yubikey-identity.pub  # Master recipient (YubiKey) referenced from each host's age.rekey.masterIdentities
 modules/
@@ -56,7 +56,7 @@ hosts/
     default.nix         # Boot, networking, SSH, ZFS, Home Assistant, restic client
     disk-config.nix     # disko declarative partitioning
     hardware-configuration.nix
-  testy/
+  bastion/
     default.nix         # Boot, networking, SSH, nginx, ACME, autoUpgrade
     vaultwarden.nix     # Vaultwarden service
     restic-server.nix   # restic REST server (append-only) + weekly prune timer
@@ -74,19 +74,19 @@ Hardware-configuration files are auto-generated; do not edit by hand.
 
 **Home Assistant** (`services.home-assistant`): listens on `0.0.0.0:8123` (firewall opens 8123); extra components `zha`, `homeassistant_hardware`, `met`; `hass` user is in `dialout` for the Zigbee USB dongle. Inline automations control a Sonoff valve (`switch.sonoff_swv`) for garden watering — Mon/Wed/Sat 04:00 start in months 4–10 unless ≥3 mm rain forecast in the next 24 h, with an unconditional 06:30 stop.
 
-**Restic backup** (client → testy): nightly at 02:00, `/var/lib/hass` minus the SQLite recorder DB. Repository URL and password come from agenix secrets `restic-repository.age` and `restic-password.age`. Pruning runs server-side on testy.
+**Restic backup** (client → bastion): nightly at 02:00, `/var/lib/hass` minus the SQLite recorder DB. Repository URL and password come from agenix secrets `restic-repository.age` and `restic-password.age`. Pruning runs server-side on bastion.
 
 ### wsl
 
 **NixOS-WSL** dev machine. Default user `nixos` with zsh login shell. Imports `modules/common.nix` for shared nix settings. Home Manager (NixOS module, activated via `nixos-rebuild`) manages user environment via `home/common.nix`: zsh (with autosuggestions + syntax highlighting), starship prompt, fzf, tmux (vi keys, mouse), git config, and user packages (`claude-code` from `nixpkgs-unstable`).
 
-### testy
+### bastion
 
 **Vaultwarden**: sets `configureNginx = true`; nginx reverse-proxy vhost is automatic at `vaultwarden.pweiss.org`.
 
-**Restic REST server** (`hosts/testy/restic-server.nix`): runs append-only on `127.0.0.1:8000` behind nginx (`restic.pweiss.org`). Pruning runs server-side every Sunday at 03:00 (the client cannot prune in append-only mode). ACME certificates cover `vaultwarden.pweiss.org`, `restic.pweiss.org`, and `status.pweiss.org`.
+**Restic REST server** (`hosts/bastion/restic-server.nix`): runs append-only on `127.0.0.1:8000` behind nginx (`restic.pweiss.org`). Pruning runs server-side every Sunday at 03:00 (the client cannot prune in append-only mode). ACME certificates cover `vaultwarden.pweiss.org`, `restic.pweiss.org`, and `status.pweiss.org`.
 
-**Status monitoring** (`hosts/testy/gatus.nix`): gatus on `127.0.0.1:8080` behind a basic-auth-protected nginx vhost at `status.pweiss.org`. Probes vaultwarden and the restic REST server every 5 min. A `restic-backup-check` systemd timer runs daily at 02:30 (as the `restic` user), stats `/var/lib/restic/nuc/snapshots` for files modified in the last 25h, and pushes success/failure to a gatus external endpoint (`cron_nightly-backup`); if no push arrives within 25h, gatus flips that endpoint to DOWN.
+**Status monitoring** (`hosts/bastion/gatus.nix`): gatus on `127.0.0.1:8080` behind a basic-auth-protected nginx vhost at `status.pweiss.org`. Probes vaultwarden and the restic REST server every 5 min. A `restic-backup-check` systemd timer runs daily at 02:30 (as the `restic` user), stats `/var/lib/restic/nuc/snapshots` for files modified in the last 25h, and pushes success/failure to a gatus external endpoint (`cron_nightly-backup`); if no push arrives within 25h, gatus flips that endpoint to DOWN.
 
 ## agenix + agenix-rekey
 

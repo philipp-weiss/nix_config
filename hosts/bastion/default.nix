@@ -12,14 +12,14 @@
   boot.loader.grub.enable = true;
   boot.loader.grub.device = "/dev/sda";
 
-  networking.hostName = "testy";
+  networking.hostName = "bastion";
 
   # agenix-rekey: master identity (YubiKey) re-encrypts secrets to this host's SSH key
   age.rekey = {
     hostPubkey = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAILnyW+Axdl5aI0Q3mXVTgjqIH7XZpvJP0H8XiEmS5suV";
     masterIdentities = [ ../../secrets/yubikey-identity.pub ];
     storageMode = "local";
-    localStorageDir = ../../secrets/rekeyed/testy;
+    localStorageDir = ../../secrets/rekeyed/bastion;
     agePlugins = [ pkgs.age-plugin-yubikey ];
   };
 
@@ -79,7 +79,7 @@
 
   system.autoUpgrade = {
     enable = true;
-    flake = "github:philipp-weiss/nix_config#testy";
+    flake = "github:philipp-weiss/nix_config#bastion";
     dates = "04:00";
     allowReboot = true;
   };

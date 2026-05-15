@@ -1,5 +1,5 @@
 {
-  description = "NixOS Konfiguration für nuc und testy";
+  description = "NixOS Konfiguration für nuc und bastion";
 
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-25.11";
@@ -78,14 +78,14 @@
             ];
           };
 
-          # testy (Hetzner VM: Vaultwarden, restic REST server)
-          testy = nixpkgs.lib.nixosSystem {
+          # bastion (Hetzner VM: Vaultwarden, restic REST server, headscale)
+          bastion = nixpkgs.lib.nixosSystem {
             inherit system;
             modules = [
               agenix.nixosModules.default
               agenix-rekey.nixosModules.default
               ./modules/common.nix
-              ./hosts/testy
+              ./hosts/bastion
             ];
           };
 

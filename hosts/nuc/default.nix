@@ -151,8 +151,8 @@
     agePlugins = [ pkgs.age-plugin-yubikey ];
   };
 
-  # Restic backup of Home Assistant to testy (append-only, prune runs server-side).
-  # Freshness monitoring lives on testy (filesystem-based check pushes to gatus).
+  # Restic backup of Home Assistant to bastion (append-only, prune runs server-side).
+  # Freshness monitoring lives on bastion (filesystem-based check pushes to gatus).
   age.secrets.restic-repository.rekeyFile = ../../secrets/restic-repository.age;
   age.secrets.restic-password.rekeyFile = ../../secrets/restic-password.age;
 

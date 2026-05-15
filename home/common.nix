@@ -46,7 +46,7 @@
         user = "root";
         identityFile = "~/.ssh/id_ed25519_sk";
       };
-      testy = {
+      bastion = {
         hostname = "100.64.0.4";
         user = "root";
         identityFile = "~/.ssh/id_ed25519_sk";
