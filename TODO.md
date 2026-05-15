@@ -2,26 +2,16 @@
 
 Open items that aren't blocking but should be tackled eventually.
 
-## MagicDNS doesn't resolve from WSL or Android
+## DNS for VPN hostnames (phone has none)
 
-After moving services behind the headscale-managed tailnet, the only working
-way to reach `nuc` / `bastion` from non-Linux-desktop peers is via their raw
-tailnet IPs (e.g. `http://<nuc-tailnet-ip>:8123` for Home Assistant,
-`http://<bastion-tailnet-ip>:8080` for gatus). The MagicDNS short-names
-(`nuc`, `bastion.vpn.pweiss.org`) don't resolve:
+NixOS hosts on the WG mesh resolve `bastion` / `nuc` / `wsl` via
+`networking.extraHosts`. The phone has no equivalent — it reaches services
+by raw IP (`http://10.42.0.2:8123` for HA, `http://10.42.0.1:8080` for
+gatus). That's fine while the addressing is stable, but bookmarks and the
+HA companion app config break the moment any IP changes.
 
-- **WSL:** `tailscale status` reports `/etc/resolv.conf overwritten` — WSL's
-  network layer keeps clobbering DNS so tailscaled can't install its
-  100.100.100.100 resolver. Likely needs NixOS-WSL `wsl.wslConf.network` tuning
-  or a stub-resolver shim.
-- **Android:** enabling "Use Tailscale DNS" in the Android Tailscale app kills
-  outbound DNS entirely (looks like "no internet"). The phone currently runs
-  with that toggle off, which keeps internet working but disables MagicDNS.
-  Likely fix is switching `nameservers.global` in
-  `hosts/bastion/headscale.nix` to a resolver that works through the tunnel
-  reliably, or accepting per-app DNS bypass.
-
-Until this is fixed, the raw tailnet IPs are baked into the HA companion
-app and any bookmarks. They're effectively stable because headscale uses
-`allocation = "sequential"` and no node has been removed, but renumbering
-is possible.
+Likely fix: small DNS resolver on bastion (unbound or dnsmasq), serving an
+internal zone like `vpn.pweiss.org` that maps to the WG IPs. Push it to
+phone clients via the WG `DNS = 10.42.0.1` line in their tunnel config —
+the WireGuard app installs that resolver only while the tunnel is up, so
+off-VPN DNS stays unchanged.
