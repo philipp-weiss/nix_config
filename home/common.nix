@@ -43,12 +43,12 @@
       nuc = {
         hostname = "192.168.178.55";
         user = "root";
-        identityFile = "~/.ssh/id_ed25519";
+        identityFile = "~/.ssh/id_ed25519_sk";
       };
       testy = {
         hostname = "46.225.79.190";
         user = "root";
-        identityFile = "~/.ssh/id_ed25519";
+        identityFile = "~/.ssh/id_ed25519_sk";
       };
     };
   };

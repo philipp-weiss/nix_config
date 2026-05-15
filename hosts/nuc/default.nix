@@ -24,6 +24,8 @@
 
   # Benutzer
   users.users.root.openssh.authorizedKeys.keys = [
+    "sk-ssh-ed25519@openssh.com AAAAGnNrLXNzaC1lZDI1NTE5QG9wZW5zc2guY29tAAAAILbfosd3ekFOHG+hudDcypiT8W1pOVJHs+lHaORYCx3eAAAADnNzaDpuaXhfY29uZmln yubikey-wsl"
+    # Break-glass: plain ed25519 from WSL, kept until the YubiKey path is proven.
     "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAICZkDf2zA4TeVNjSzZXq9Jj2imPaDzsjPEmoYNhMBn2n wsl"
   ];
 
