@@ -21,6 +21,10 @@
     KERNEL=="hidraw*", SUBSYSTEM=="hidraw", ATTRS{idVendor}=="1050", MODE="0660", GROUP="users", TAG+="uaccess"
   '';
 
+  # Tailscale (headscale-coordinated VPN).
+  # Login: tailscale up --login-server https://headscale.pweiss.org --auth-key <key>
+  services.tailscale.enable = true;
+
   home-manager.useGlobalPkgs = true;
   home-manager.useUserPackages = true;
   home-manager.extraSpecialArgs = { inherit unstable; };

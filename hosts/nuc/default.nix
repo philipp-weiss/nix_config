@@ -62,6 +62,10 @@
   networking.firewall.enable = true;
   networking.firewall.allowedTCPPorts = [ 8123 ];
 
+  # Tailscale (headscale-coordinated VPN).
+  # Login: tailscale up --login-server https://headscale.pweiss.org --auth-key <key>
+  services.tailscale.enable = true;
+
   # Home Assistant USB Zigbee Dongle Zugriff
   users.users.hass.extraGroups = [ "dialout" ];
 
