@@ -34,10 +34,17 @@
   #
   # WSL is excluded from agenix-rekey (no SSH host key, sshd not enabled), so
   # the secret is decrypted at activation directly via the YubiKey using
-  # age-plugin-yubikey (added to systemPackages above). The identity stub at
-  # /var/lib/agenix/yubikey-identity.txt must exist (generated once with
-  # `age-plugin-yubikey --identity`).
+  # age-plugin-yubikey. The identity stub at /var/lib/agenix/yubikey-identity.txt
+  # must exist (generated once with `age-plugin-yubikey --identity`).
   # Side effect: every nixos-rebuild on WSL needs the YubiKey attached + touch.
+  #
+  # rage discovers plugins via $PATH at runtime, but the agenix activation
+  # script runs with a minimal env that doesn't include age-plugin-yubikey.
+  # Wrap rage so the plugin is on its PATH.
+  age.ageBin = "${pkgs.writeShellScriptBin "rage" ''
+    export PATH="${pkgs.age-plugin-yubikey}/bin:$PATH"
+    exec ${pkgs.rage}/bin/rage "$@"
+  ''}/bin/rage";
   age.identityPaths = [ "/var/lib/agenix/yubikey-identity.txt" ];
   age.secrets.wg-wsl-private.file = ../../secrets/wg-wsl.age;
 
