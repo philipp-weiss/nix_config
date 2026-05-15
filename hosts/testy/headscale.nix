@@ -26,6 +26,10 @@
     };
   };
 
+  # Join testy to its own tailnet so other peers can reach services on it.
+  # Login: tailscale up --login-server https://headscale.pweiss.org --auth-key <key>
+  services.tailscale.enable = true;
+
   services.nginx.virtualHosts."headscale.pweiss.org" = {
     enableACME = true;
     forceSSL = true;
