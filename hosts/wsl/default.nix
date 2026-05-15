@@ -62,12 +62,6 @@
     ];
   };
 
-  networking.extraHosts = ''
-    10.42.0.1 bastion
-    10.42.0.2 nuc
-    10.42.0.3 wsl
-  '';
-
   home-manager.useGlobalPkgs = true;
   home-manager.useUserPackages = true;
   home-manager.extraSpecialArgs = { inherit unstable; };

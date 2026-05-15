@@ -81,12 +81,6 @@
     ];
   };
 
-  networking.extraHosts = ''
-    10.42.0.1 bastion
-    10.42.0.2 nuc
-    10.42.0.3 wsl
-  '';
-
   # SSH reachable only via wg0; LAN/public stays default-deny.
   # (Home Assistant adds its own 8123 rule in home-assistant.nix.)
   networking.firewall.interfaces.wg0.allowedTCPPorts = [ 22 ];

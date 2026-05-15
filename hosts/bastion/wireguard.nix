@@ -44,9 +44,4 @@
     ];
   };
 
-  networking.extraHosts = ''
-    10.42.0.1 bastion
-    10.42.0.2 nuc
-    10.42.0.3 wsl
-  '';
 }
