@@ -90,11 +90,14 @@
           };
 
           # wsl (NixOS-WSL dev machine)
+          # Uses base agenix (not agenix-rekey) — WSL has no SSH host key, so
+          # it decrypts secrets directly via the YubiKey using age-plugin-yubikey.
           wsl = nixpkgs.lib.nixosSystem {
             inherit system;
             specialArgs = { inherit unstable; };
             modules = [
               nixos-wsl.nixosModules.default
+              agenix.nixosModules.default
               home-manager.nixosModules.home-manager
               ./modules/common.nix
               ./hosts/wsl

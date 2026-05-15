@@ -40,14 +40,14 @@
     enable = true;
     enableDefaultConfig = false;
     matchBlocks = {
-      # Tailnet IPs from the headscale-managed VPN; both hosts must be joined.
+      # WireGuard VPN IPs; both hosts must be reachable on wg0.
       nuc = {
-        hostname = "100.64.0.2";
+        hostname = "10.42.0.2";
         user = "root";
         identityFile = "~/.ssh/id_ed25519_sk";
       };
       bastion = {
-        hostname = "100.64.0.4";
+        hostname = "10.42.0.1";
         user = "root";
         identityFile = "~/.ssh/id_ed25519_sk";
       };

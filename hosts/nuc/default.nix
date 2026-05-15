@@ -61,12 +61,32 @@
   # Firewall
   networking.firewall.enable = true;
 
-  # Tailscale (headscale-coordinated VPN).
-  # Login: tailscale up --login-server https://headscale.pweiss.org --auth-key <key>
-  services.tailscale.enable = true;
+  # WireGuard (spoke): dials the bastion hub. All inter-peer traffic hairpins
+  # through bastion. Peer pubkeys live in nix; only this host's private key
+  # is encrypted via agenix.
+  age.secrets.wg-nuc-private.rekeyFile = ../../secrets/wg-nuc.age;
 
-  # Home Assistant reachable only via tailnet; LAN/public stays default-deny.
-  networking.firewall.interfaces.tailscale0.allowedTCPPorts = [ 8123 ];
+  networking.wireguard.interfaces.wg0 = {
+    ips = [ "10.42.0.2/24" ];
+    privateKeyFile = config.age.secrets.wg-nuc-private.path;
+    peers = [
+      {
+        publicKey = "fV8gh4dAemQPTkaY6ilyeB+wniPHZAHtE+6bv/Kf41U=";
+        allowedIPs = [ "10.42.0.0/24" ];
+        endpoint = "wireguard.pweiss.org:51820";
+        persistentKeepalive = 25;
+      }
+    ];
+  };
+
+  networking.extraHosts = ''
+    10.42.0.1 bastion
+    10.42.0.2 nuc
+    10.42.0.3 wsl
+  '';
+
+  # Home Assistant reachable only via wg0; LAN/public stays default-deny.
+  networking.firewall.interfaces.wg0.allowedTCPPorts = [ 8123 ];
 
   # Home Assistant USB Zigbee Dongle Zugriff
   users.users.hass.extraGroups = [ "dialout" ];

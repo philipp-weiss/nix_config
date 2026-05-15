@@ -33,7 +33,7 @@
           name = "restic-server";
           group = "web";
           # rest-server is htpasswd-protected: 401 without auth proves it's alive.
-          # Probed over loopback since the service is tailnet-only and gatus runs
+          # Probed over loopback since the service is VPN-only and gatus runs
           # on the same host.
           url = "http://127.0.0.1:8000/";
           interval = "5m";

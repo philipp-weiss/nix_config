@@ -61,6 +61,7 @@ hosts/
     vaultwarden.nix     # Vaultwarden service
     restic-server.nix   # restic REST server (append-only) + weekly prune timer
     gatus.nix           # Status page + nightly-backup freshness check
+    wireguard.nix       # WireGuard hub (10.42.0.0/24); accepts inbound UDP 51820
     hardware-configuration.nix
   wsl/
     default.nix         # WSL enable, defaultUser, home-manager wiring
@@ -87,6 +88,10 @@ Hardware-configuration files are auto-generated; do not edit by hand.
 **Restic REST server** (`hosts/bastion/restic-server.nix`): runs append-only on `127.0.0.1:8000` behind nginx (`restic.pweiss.org`). Pruning runs server-side every Sunday at 03:00 (the client cannot prune in append-only mode). ACME certificates cover `vaultwarden.pweiss.org`, `restic.pweiss.org`, and `status.pweiss.org`.
 
 **Status monitoring** (`hosts/bastion/gatus.nix`): gatus on `127.0.0.1:8080` behind a basic-auth-protected nginx vhost at `status.pweiss.org`. Probes vaultwarden and the restic REST server every 5 min. A `restic-backup-check` systemd timer runs daily at 02:30 (as the `restic` user), stats `/var/lib/restic/nuc/snapshots` for files modified in the last 25h, and pushes success/failure to a gatus external endpoint (`cron_nightly-backup`); if no push arrives within 25h, gatus flips that endpoint to DOWN.
+
+## VPN (WireGuard hub-and-spoke)
+
+`bastion` is the hub: only host with a public UDP listener (51820, hostname `wireguard.pweiss.org`). `nuc` and `wsl` are spokes that dial the hub; inter-spoke traffic (and the phone) hairpins through bastion (kernel IP forwarding enabled). Internal subnet is `10.42.0.0/24` — bastion `.1`, nuc `.2`, wsl `.3`, phone `.10`. Names resolve via `networking.extraHosts` on each NixOS host. The restic REST server and gatus are bound publicly but firewall-restricted to `wg0`; Home Assistant is the same on nuc. Each host's WireGuard private key is an agenix secret (`secrets/wg-{bastion,nuc,wsl}.age`). nuc and bastion use agenix-rekey as usual; **wsl** uses base agenix with `age-plugin-yubikey` and `age.identityPaths = [ "/var/lib/agenix/yubikey-identity.txt" ]`, so the YubiKey must be attached on every WSL rebuild/reboot.
 
 ## agenix + agenix-rekey
 

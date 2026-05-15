@@ -6,7 +6,7 @@
     ./vaultwarden.nix
     ./restic-server.nix
     ./gatus.nix
-    ./headscale.nix
+    ./wireguard.nix
   ];
 
   boot.loader.grub.enable = true;

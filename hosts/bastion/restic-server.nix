@@ -22,8 +22,8 @@
     ];
   };
 
-  # Reachable only via tailnet; public interface stays default-deny.
-  networking.firewall.interfaces.tailscale0.allowedTCPPorts = [ 8000 ];
+  # Reachable only via wg0; public interface stays default-deny.
+  networking.firewall.interfaces.wg0.allowedTCPPorts = [ 8000 ];
 
   # Pruning must run server-side because the client is append-only.
   # Runs as the `restic` user so files it rewrites stay readable by rest-server.

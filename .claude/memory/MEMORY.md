@@ -7,3 +7,4 @@
 - [Stage files before nix eval/build](feedback_stage_before_eval.md) — `git add` new/modified .nix files before any nix eval/build/check
 - [Only commit safe-to-expose content](feedback_safe_to_expose.md) — memory and repo are public on GitHub; treat everything written as world-readable
 - [pweiss.org DNS wildcard](reference_pweiss_dns_wildcard.md) — *.pweiss.org → bastion; new subdomain vhosts need no DNS step
+- [All secrets gated by YubiKey](feedback_yubikey_secrets.md) — never propose plain-file or non-YubiKey workarounds, even on WSL

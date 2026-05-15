@@ -1,7 +1,10 @@
-{ pkgs, unstable, ... }:
+{ config, pkgs, unstable, ... }:
 {
   wsl.enable = true;
   wsl.defaultUser = "nixos";
+  # WSL otherwise overwrites /etc/hosts at boot, which would clobber the
+  # WireGuard peer entries below.
+  wsl.wslConf.network.generateHosts = false;
 
   programs.zsh.enable = true;
   programs.zsh.loginShellInit = "cd ~";
@@ -9,7 +12,12 @@
 
   # USB/IP support so usbipd-win on Windows can attach devices (e.g. YubiKey).
   # `usbipd attach` needs modprobe (kmod) to load vhci_hcd from the WSL kernel.
-  environment.systemPackages = with pkgs; [ kmod linuxPackages.usbip usbutils ];
+  environment.systemPackages = with pkgs; [
+    kmod
+    linuxPackages.usbip
+    usbutils
+    age-plugin-yubikey
+  ];
 
   # YubiKey: pcscd for PIV (used by age-plugin-yubikey) + udev rules for device access.
   services.pcscd.enable = true;
@@ -21,9 +29,36 @@
     KERNEL=="hidraw*", SUBSYSTEM=="hidraw", ATTRS{idVendor}=="1050", MODE="0660", GROUP="users", TAG+="uaccess"
   '';
 
-  # Tailscale (headscale-coordinated VPN).
-  # Login: tailscale up --login-server https://headscale.pweiss.org --auth-key <key>
-  services.tailscale.enable = true;
+  # WireGuard (spoke): dials the bastion hub. WSL2 kernel ships the wireguard
+  # module, so plain `networking.wireguard.interfaces` works without wg-quick.
+  #
+  # WSL is excluded from agenix-rekey (no SSH host key, sshd not enabled), so
+  # the secret is decrypted at activation directly via the YubiKey using
+  # age-plugin-yubikey (added to systemPackages above). The identity stub at
+  # /var/lib/agenix/yubikey-identity.txt must exist (generated once with
+  # `age-plugin-yubikey --identity`).
+  # Side effect: every nixos-rebuild on WSL needs the YubiKey attached + touch.
+  age.identityPaths = [ "/var/lib/agenix/yubikey-identity.txt" ];
+  age.secrets.wg-wsl-private.file = ../../secrets/wg-wsl.age;
+
+  networking.wireguard.interfaces.wg0 = {
+    ips = [ "10.42.0.3/24" ];
+    privateKeyFile = config.age.secrets.wg-wsl-private.path;
+    peers = [
+      {
+        publicKey = "fV8gh4dAemQPTkaY6ilyeB+wniPHZAHtE+6bv/Kf41U=";
+        allowedIPs = [ "10.42.0.0/24" ];
+        endpoint = "wireguard.pweiss.org:51820";
+        persistentKeepalive = 25;
+      }
+    ];
+  };
+
+  networking.extraHosts = ''
+    10.42.0.1 bastion
+    10.42.0.2 nuc
+    10.42.0.3 wsl
+  '';
 
   home-manager.useGlobalPkgs = true;
   home-manager.useUserPackages = true;
