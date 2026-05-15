@@ -15,20 +15,15 @@
   services.restic.server = {
     enable = true;
     dataDir = "/var/lib/restic";
-    listenAddress = "127.0.0.1:8000";
+    listenAddress = "0.0.0.0:8000";
     extraFlags = [
       "--htpasswd-file" config.age.secrets.restic-htpasswd.path
       "--append-only"
     ];
   };
 
-  services.nginx.virtualHosts."restic.pweiss.org" = {
-    enableACME = true;
-    forceSSL = true;
-    locations."/" = {
-      proxyPass = "http://127.0.0.1:8000";
-    };
-  };
+  # Reachable only via tailnet; public interface stays default-deny.
+  networking.firewall.interfaces.tailscale0.allowedTCPPorts = [ 8000 ];
 
   # Pruning must run server-side because the client is append-only.
   # Runs as the `restic` user so files it rewrites stay readable by rest-server.
