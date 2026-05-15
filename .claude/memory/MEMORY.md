@@ -5,3 +5,4 @@
 - [Default to writing todos](feedback_use_todos.md) — lower the bar for TaskCreate so user can follow along
 - [Auto-commit memory changes](feedback_commit_memory.md) — commit + push memory edits in the same turn
 - [Stage files before nix eval/build](feedback_stage_before_eval.md) — `git add` new/modified .nix files before any nix eval/build/check
+- [pweiss.org DNS wildcard](reference_pweiss_dns_wildcard.md) — *.pweiss.org → testy; new subdomain vhosts need no DNS step
