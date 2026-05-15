@@ -1,11 +1,11 @@
 ---
-name: All secrets gated by YubiKey
-description: User wants every host's secrets behind the YubiKey, including WSL which lacks an SSH host key
+name: All secrets gated by YubiKey via agenix-rekey
+description: Every host (including WSL) goes through agenix-rekey; YubiKey-direct activation decryption is blocked by PIN policy
 type: feedback
 originSessionId: 38a049b3-2a4d-4db2-a48f-3426c8292562
 ---
-All host secrets must stay behind the YubiKey age identity. For nuc and bastion, that means agenix-rekey with each host's SSH pubkey as the rekey target (existing pattern). For WSL — which has no SSH host key and is excluded from agenix-rekey — use the base `agenix.nixosModules.default` with `age.identityPaths` pointing at a YubiKey identity stub, so activation decrypts via age-plugin-yubikey directly.
+All host secrets live in the repo encrypted only to the YubiKey master identity (`secrets/yubikey-identity.pub`). For runtime decryption, every host uses agenix-rekey to re-encrypt each secret to that host's SSH host key. The YubiKey is touched (and PIN-entered if required) only on the dev machine, during `agenix edit` and `agenix rekey -a`.
 
-**Why:** User stated explicitly: "i usually use yubikey for all secrets". They rejected plain-file or non-YubiKey workarounds for WSL.
+**Why:** User stated "i usually use yubikey for all secrets". We tried YubiKey-direct activation decryption on WSL (base agenix + `age-plugin-yubikey` + an identity stub at `/var/lib/agenix/yubikey-identity.txt`) and it failed: the YubiKey slot has PIN policy != Never, and the activation script has no TTY for pinentry. PIN policy is baked in at slot generation, so switching it would mean regenerating the YubiKey identity and invalidating every existing secret. Not worth it.
 
-**How to apply:** When adding a new secret to WSL, never propose a plain file or alternative key source. Use `age.secrets.X.file = ../../secrets/X.age` with the YubiKey identity stub configured under `age.identityPaths`. Tradeoff the user has accepted: WSL rebuilds and reboots require the YubiKey attached + touch.
+**How to apply:** When a new host joins this repo, give it an SSH host key (enable `services.openssh` — `openFirewall = false` is fine if you don't need inbound SSH) and wire it into agenix-rekey like nuc/bastion: `age.rekey.{hostPubkey, masterIdentities, storageMode, localStorageDir, agePlugins}` in the host module, and include `agenix-rekey.nixosModules.default` plus `agenix.nixosModules.default` in `flake.nix`. Don't try YubiKey-direct activation decryption — it cannot work non-interactively with this PIN-policy slot.

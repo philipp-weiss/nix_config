@@ -16,8 +16,23 @@
     kmod
     linuxPackages.usbip
     usbutils
-    age-plugin-yubikey
   ];
+
+  # sshd is enabled solely so NixOS provisions an SSH host key for
+  # agenix-rekey to target. We never want inbound SSH on WSL itself.
+  services.openssh = {
+    enable = true;
+    openFirewall = false;
+  };
+
+  # agenix-rekey wiring (same pattern as nuc/bastion).
+  age.rekey = {
+    hostPubkey = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIMKbqoE+0wANUEFWl41DIrO0yvQdsu1BUzQaDubdhaJq";
+    masterIdentities = [ ../../secrets/yubikey-identity.pub ];
+    storageMode = "local";
+    localStorageDir = ../../secrets/rekeyed/wsl;
+    agePlugins = [ pkgs.age-plugin-yubikey ];
+  };
 
   # YubiKey: pcscd for PIV (used by age-plugin-yubikey) + udev rules for device access.
   services.pcscd.enable = true;
@@ -31,22 +46,7 @@
 
   # WireGuard (spoke): dials the bastion hub. WSL2 kernel ships the wireguard
   # module, so plain `networking.wireguard.interfaces` works without wg-quick.
-  #
-  # WSL is excluded from agenix-rekey (no SSH host key, sshd not enabled), so
-  # the secret is decrypted at activation directly via the YubiKey using
-  # age-plugin-yubikey. The identity stub at /var/lib/agenix/yubikey-identity.txt
-  # must exist (generated once with `age-plugin-yubikey --identity`).
-  # Side effect: every nixos-rebuild on WSL needs the YubiKey attached + touch.
-  #
-  # rage discovers plugins via $PATH at runtime, but the agenix activation
-  # script runs with a minimal env that doesn't include age-plugin-yubikey.
-  # Wrap rage so the plugin is on its PATH.
-  age.ageBin = "${pkgs.writeShellScriptBin "rage" ''
-    export PATH="${pkgs.age-plugin-yubikey}/bin:$PATH"
-    exec ${pkgs.rage}/bin/rage "$@"
-  ''}/bin/rage";
-  age.identityPaths = [ "/var/lib/agenix/yubikey-identity.txt" ];
-  age.secrets.wg-wsl-private.file = ../../secrets/wg-wsl.age;
+  age.secrets.wg-wsl-private.rekeyFile = ../../secrets/wg-wsl.age;
 
   networking.wireguard.interfaces.wg0 = {
     ips = [ "10.42.0.3/24" ];
