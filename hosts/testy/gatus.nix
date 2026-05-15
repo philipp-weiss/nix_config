@@ -1,10 +1,5 @@
 { config, pkgs, ... }:
 {
-  age.secrets.gatus-htpasswd = {
-    rekeyFile = ../../secrets/gatus-htpasswd.age;
-    owner = "nginx";
-  };
-
   # Token for gatus external-endpoint pushes (env file: GATUS_BACKUP_TOKEN=...).
   # Used by both gatus (to validate pushes) and the backup-check timer (to push).
   age.secrets.gatus-heartbeat-token.rekeyFile = ../../secrets/gatus-heartbeat-token.age;
@@ -14,7 +9,7 @@
     environmentFile = config.age.secrets.gatus-heartbeat-token.path;
     settings = {
       web = {
-        address = "127.0.0.1";
+        address = "0.0.0.0";
         port = 8080;
       };
 
@@ -61,14 +56,8 @@
     };
   };
 
-  services.nginx.virtualHosts."status.pweiss.org" = {
-    enableACME = true;
-    forceSSL = true;
-    locations."/" = {
-      proxyPass = "http://127.0.0.1:8080";
-      basicAuthFile = config.age.secrets.gatus-htpasswd.path;
-    };
-  };
+  # Reachable only via tailnet; public interface stays default-deny.
+  networking.firewall.interfaces.tailscale0.allowedTCPPorts = [ 8080 ];
 
   # Daily freshness check: looks at the rest-server's data dir and pushes
   # success/failure to gatus's external endpoint. Runs as `restic` so it can
