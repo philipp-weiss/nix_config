@@ -54,6 +54,7 @@
 
   home.packages = [
     unstable.claude-code
+    pkgs.python3
   ];
 
   home.file.".claude/projects/-home-nixos-nix-config/memory".source =
