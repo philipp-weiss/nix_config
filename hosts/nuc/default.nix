@@ -28,8 +28,10 @@
   ];
 
   # SSH
+  # SSH only via the WG mesh; recovery if WG breaks is physical console access.
   services.openssh = {
     enable = true;
+    openFirewall = false;
     settings = {
       PasswordAuthentication = false;
       PermitRootLogin = "prohibit-password";
@@ -84,8 +86,8 @@
     10.42.0.3 wsl
   '';
 
-  # Home Assistant reachable only via wg0; LAN/public stays default-deny.
-  networking.firewall.interfaces.wg0.allowedTCPPorts = [ 8123 ];
+  # Home Assistant + SSH reachable only via wg0; LAN/public stays default-deny.
+  networking.firewall.interfaces.wg0.allowedTCPPorts = [ 22 8123 ];
 
   # Home Assistant USB Zigbee Dongle Zugriff
   users.users.hass.extraGroups = [ "dialout" ];
