@@ -23,10 +23,6 @@
     agePlugins = [ pkgs.age-plugin-yubikey ];
   };
 
-  time.timeZone = "Europe/Berlin";
-  i18n.defaultLocale = "C.UTF-8";
-  console.keyMap = "de-latin1";
-
   environment.systemPackages = with pkgs; [
     vim
     wget

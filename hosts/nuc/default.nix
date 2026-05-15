@@ -18,11 +18,6 @@
   networking.hostId = "fdd62ac8"; # Pflicht für ZFS
   networking.useDHCP = true;
 
-  # Zeitzone & Lokalisierung
-  time.timeZone = "Europe/Berlin";
-  i18n.defaultLocale = "de_DE.UTF-8";
-  console.keyMap = "de-latin1";
-
   # Benutzer
   users.users.root.openssh.authorizedKeys.keys = [
     "sk-ssh-ed25519@openssh.com AAAAGnNrLXNzaC1lZDI1NTE5QG9wZW5zc2guY29tAAAAILbfosd3ekFOHG+hudDcypiT8W1pOVJHs+lHaORYCx3eAAAADnNzaDpuaXhfY29uZmln yubikey-wsl"
