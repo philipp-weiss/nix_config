@@ -76,7 +76,7 @@
             ];
           };
 
-          # bastion (Hetzner VM: Vaultwarden, restic REST server, headscale)
+          # bastion (Hetzner VM: Vaultwarden, restic REST server, WireGuard hub)
           bastion = nixpkgs.lib.nixosSystem {
             inherit system;
             modules = [

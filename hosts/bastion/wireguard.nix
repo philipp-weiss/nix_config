@@ -2,7 +2,7 @@
 {
   # Hub-and-spoke WireGuard mesh. bastion is the only peer with a public
   # endpoint; nuc, wsl, and the phone all dial in and route inter-peer
-  # traffic through here. Replaces the previous headscale/tailscale setup.
+  # traffic through here.
   #
   # Subnet 10.42.0.0/24:
   #   .1  bastion (hub)
