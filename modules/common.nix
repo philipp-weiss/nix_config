@@ -9,6 +9,12 @@
   i18n.defaultLocale = "C.UTF-8";
   console.keyMap = "de-latin1";
 
+  nix.gc = {
+    automatic = true;
+    dates = "weekly";
+    options = "--delete-older-than 30d";
+  };
+
   # WireGuard peer names — same on every host on the mesh.
   networking.extraHosts = ''
     10.42.0.1 bastion

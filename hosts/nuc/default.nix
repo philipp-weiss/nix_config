@@ -114,13 +114,6 @@
 
   nix.nixPath = [ "nixpkgs=flake:nixpkgs" ];
 
-  # Nix Garbage Collection
-  nix.gc = {
-    automatic = true;
-    dates = "weekly";
-    options = "--delete-older-than 30d";
-  };
-
   system.autoUpgrade = {
     enable = true;
     flake = "github:philipp-weiss/nix_config#nuc";
