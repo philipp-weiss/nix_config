@@ -38,6 +38,7 @@
 
   programs.ssh = {
     enable = true;
+    enableDefaultConfig = false;
     matchBlocks = {
       nuc = {
         hostname = "192.168.178.55";
