@@ -23,13 +23,6 @@
     agePlugins = [ pkgs.age-plugin-yubikey ];
   };
 
-  environment.systemPackages = with pkgs; [
-    vim
-    wget
-    git
-  ];
-
-
   nix.nixPath = [ "nixpkgs=flake:nixpkgs" ];
 
   # SSH only via the WG mesh; recovery if WG breaks is the Hetzner web console.

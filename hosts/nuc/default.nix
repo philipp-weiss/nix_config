@@ -34,14 +34,6 @@
     };
   };
 
-  # Grundlegende Pakete
-  environment.systemPackages = with pkgs; [
-    vim
-    git
-    curl
-    htop
-  ];
-
   # ZFS
   boot.supportedFilesystems = [ "zfs" ];
   services.zfs.autoScrub.enable = true;
