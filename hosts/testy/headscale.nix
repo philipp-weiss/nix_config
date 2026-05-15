@@ -4,7 +4,7 @@
   services.headscale = {
     enable = true;
     address = "127.0.0.1";
-    port = 8080;
+    port = 8081;
     settings = {
       server_url = "https://headscale.pweiss.org";
 
@@ -30,7 +30,7 @@
     enableACME = true;
     forceSSL = true;
     locations."/" = {
-      proxyPass = "http://127.0.0.1:8080";
+      proxyPass = "http://127.0.0.1:8081";
       proxyWebsockets = true;
       extraConfig = ''
         proxy_buffering off;
