@@ -20,6 +20,10 @@
     ips = [ "10.42.0.1/24" ];
     listenPort = 51820;
     privateKeyFile = config.age.secrets.wg-bastion-private.path;
+    # Measured: WSL↔bastion path drops inner IP packets >1348 bytes. 1280 is
+    # the IPv6 minimum MTU and leaves headroom for route changes. Without
+    # this, post-quantum SSH KEX replies fragment and get silently dropped.
+    mtu = 1280;
 
     peers = [
       {

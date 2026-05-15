@@ -69,6 +69,7 @@
   networking.wireguard.interfaces.wg0 = {
     ips = [ "10.42.0.2/24" ];
     privateKeyFile = config.age.secrets.wg-nuc-private.path;
+    mtu = 1280;
     peers = [
       {
         publicKey = "fV8gh4dAemQPTkaY6ilyeB+wniPHZAHtE+6bv/Kf41U=";
