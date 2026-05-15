@@ -36,8 +36,10 @@
 
   nix.nixPath = [ "nixpkgs=flake:nixpkgs" ];
 
+  # SSH only via the WG mesh; recovery if WG breaks is the Hetzner web console.
   services.openssh = {
     enable = true;
+    openFirewall = false;
     settings = {
       PasswordAuthentication = false;
       PermitRootLogin = "prohibit-password";
@@ -50,6 +52,7 @@
   ];
 
   networking.firewall.allowedTCPPorts = [ 80 443 ];
+  networking.firewall.interfaces.wg0.allowedTCPPorts = [ 22 ];
 
   services.nginx = {
     enable = true;
