@@ -57,8 +57,8 @@
     };
   };
 
-  # Reachable only via tailnet; public interface stays default-deny.
-  networking.firewall.interfaces.tailscale0.allowedTCPPorts = [ 8080 ];
+  # Reachable only via wg0; public interface stays default-deny.
+  networking.firewall.interfaces.wg0.allowedTCPPorts = [ 8080 ];
 
   # Daily freshness check: looks at the rest-server's data dir and pushes
   # success/failure to gatus's external endpoint. Runs as `restic` so it can
