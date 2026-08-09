@@ -79,6 +79,7 @@
           # bastion (Hetzner VM: Vaultwarden, restic REST server, WireGuard hub)
           bastion = nixpkgs.lib.nixosSystem {
             inherit system;
+            specialArgs = { inherit unstable; };
             modules = [
               agenix.nixosModules.default
               agenix-rekey.nixosModules.default

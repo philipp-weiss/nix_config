@@ -1,7 +1,8 @@
-{ ... }:
+{ unstable, ... }:
 {
   services.vaultwarden = {
     enable = true;
+    package = unstable.vaultwarden;
     backupDir = "/var/backup/vaultwarden";
     config = {
       SIGNUPS_ALLOWED = false;
