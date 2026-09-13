@@ -57,7 +57,17 @@
   home.packages = [
     unstable.claude-code
     pkgs.python3
+    pkgs.gcc
+    pkgs.rustc
+    pkgs.cargo
+    pkgs.clippy
+    pkgs.rustfmt
+    pkgs.rust-analyzer
   ];
+
+  # rust-analyzer needs the standard library's source code to understand `std`.
+  # nixpkgs' rustc doesn't include it, so point rust-analyzer at it here.
+  home.sessionVariables.RUST_SRC_PATH = "${pkgs.rustPlatform.rustLibSrc}";
 
   home.file.".claude/projects/-home-nixos-nix-config/memory".source =
     config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/nix_config/.claude/memory";
