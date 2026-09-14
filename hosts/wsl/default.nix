@@ -52,6 +52,12 @@
         allowedIPs = [ "10.42.0.0/24" ];
         endpoint = "wireguard.pweiss.org:51820";
         persistentKeepalive = 25;
+        # Without this the peer unit is a oneshot that resolves the endpoint
+        # once at boot; if DNS isn't up yet ("Name or service not known") it
+        # fails for good and the host never dials the hub. The refresh unit
+        # retries after 10 s and re-resolves every 5 min.
+        dynamicEndpointRefreshSeconds = 300;
+        dynamicEndpointRefreshRestartSeconds = 10;
       }
     ];
   };
