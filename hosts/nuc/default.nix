@@ -36,6 +36,9 @@
 
   # ZFS
   boot.supportedFilesystems = [ "zfs" ];
+  # Import rpool without -f so ZFS's hostid safeguard stays active (default
+  # from 26.11). Verified: pool label hostid matches networking.hostId.
+  boot.zfs.forceImportRoot = false;
   services.zfs.autoScrub.enable = true;
   services.zfs.autoSnapshot = {
     enable = true;
