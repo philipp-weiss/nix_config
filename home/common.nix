@@ -1,6 +1,6 @@
 { pkgs, unstable, config, ... }:
 {
-  imports = [ ./neovim.nix ];
+  imports = [ ./vscode.nix ];
 
   programs.zsh = {
     enable = true;
