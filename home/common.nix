@@ -41,8 +41,8 @@
   programs.ssh = {
     enable = true;
     enableDefaultConfig = false;
-    matchBlocks = {
-      # WireGuard VPN IPs; both hosts must be reachable on wg0.
+    # WireGuard VPN IPs; both hosts must be reachable on wg0.
+    settings = {
       nuc = {
         hostname = "10.42.0.2";
         user = "root";
