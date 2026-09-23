@@ -1,5 +1,7 @@
 { pkgs, unstable, config, ... }:
 {
+  imports = [ ./neovim.nix ];
+
   programs.zsh = {
     enable = true;
     autosuggestion.enable = true;
