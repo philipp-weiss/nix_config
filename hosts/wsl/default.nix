@@ -17,7 +17,16 @@
     kmod
     linuxPackages.usbip
     usbutils
+    # VS Code Remote-WSL shells out to wget to fetch its server tarball into
+    # ~/.vscode-server and aborts with "'wget' not installed" without it.
+    wget
   ];
+
+  # That server ships its own dynamically-linked node, which looks for the
+  # glibc loader at /lib64/ld-linux-x86-64.so.2 — on NixOS that path is a stub
+  # that only prints an error. nix-ld puts a real loader there so foreign
+  # binaries like the VS Code server can run.
+  programs.nix-ld.enable = true;
 
   # sshd is enabled solely so NixOS provisions an SSH host key for
   # agenix-rekey to target. We never want inbound SSH on WSL itself.
