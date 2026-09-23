@@ -1,4 +1,4 @@
-- [Auto-push after committing](feedback_auto_push.md) — push immediately after a commit on main; no separate confirm
+- [Never commit unless asked](feedback_auto_push.md) — no `git commit` without an explicit ask; auto-push only after a requested commit
 - [Skip nixos-rebuild test, go straight to switch](feedback_rebuild_flow.md) — default to `switch`, skip the `test` safety step
 - [Edits on WSL, applies on nuc/bastion via SSH](user_remote_workflow.md) — don't run nuc/bastion rebuilds locally on WSL
 - [Don't SSH into nuc/bastion yourself](feedback_no_remote_access.md) — print remote commands for the user to run; don't execute them
